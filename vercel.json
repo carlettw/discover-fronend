@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://centralia-backend.onrender.com/api/:path*" },
+    { "source": "/media/:path*", "destination": "https://centralia-backend.onrender.com/media/:path*" }
+  ]
+}
