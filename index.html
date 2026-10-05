@@ -162,8 +162,8 @@ html.tt *{transition:background-color .5s,color .5s,border-color .5s,box-shadow 
 <script>
 /* ===== SOZLAMALAR — shu yerni to'ldiring ===== */
 const CFG={
-  API:'https://centralia-backend.onrender.com/api/v1',
-  MEDIA:'https://centralia-backend.onrender.com',
+  API:(location.protocol.startsWith('http')&&!/^(localhost|127\.)/.test(location.hostname))?'/api/v1':'https://centralia-backend.onrender.com/api/v1',  // saytda: Vercel proxy orqali (CORS kerak emas)
+  MEDIA:(location.protocol.startsWith('http')&&!/^(localhost|127\.)/.test(location.hostname))?'':'https://centralia-backend.onrender.com',
   WA:'998XXXXXXXXX',            // haqiqiy WhatsApp raqam (+ belgisiz, masalan 998901234567)
   EMAIL:'info@discover-stans.uz',
   TG:'discoverstans',           // Telegram username
@@ -238,7 +238,7 @@ async function api(path,{method='GET',body,auth,raw}={},retry=true){
   if(method==='GET')u+=(u.includes('?')?'&':'?')+'lang='+(['uz','ru','en'].includes(lang)?lang:'en');
   const h={};if(!raw)h['Content-Type']='application/json';
   if(tk())h.Authorization='Bearer '+tk();
-  const r=await fetch(u,{method,headers:h,body:raw?body:body&&JSON.stringify(body)});
+  let r;for(let i=0;;i++){try{r=await fetch(u,{method,headers:h,body:raw?body:body&&JSON.stringify(body)});break}catch(e){if(i>=2||method!=='GET')throw new Error(t('net'));await new Promise(z=>setTimeout(z,4000))}}
   if(r.status===401&&retry&&localStorage.getItem('rt')){
     const f=await fetch(CFG.API+'/auth/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({refresh_token:localStorage.getItem('rt')})});
     if(f.ok){const d=await f.json();setTok(d);return api(path,{method,body,auth,raw},false)} setTok(null);
@@ -289,6 +289,7 @@ bukhara:['#1c2a5a','#e0a63a','<circle cx="90" cy="70" r="22" fill="#f6e3b0" opac
 khiva:['#e0a63a','#f6e3b0','<path d="M170 130a35 28 0 0 1 70 0z" fill="#3b74f2"/><rect x="170" y="130" width="70" height="150" fill="#3b74f2"/><rect x="170" y="160" width="70" height="10" fill="#f6e3b0"/><rect x="170" y="200" width="70" height="10" fill="#f6e3b0"/><path d="M0 182h400" stroke="#7a4b1c" stroke-width="16" stroke-dasharray="20 14"/><rect y="190" width="400" height="110" fill="#7a4b1c"/><path d="M30 300v-40a14 14 0 0 1 28 0v40zM330 300v-40a14 14 0 0 1 28 0v40z" fill="#e0a63a"/>'],
 lakes:['#a9c9ff','#f6f6f2','<circle cx="320" cy="60" r="22" fill="#fff" opacity=".85"/><path d="M0 190l70-90 50 60 60-80 90 110 50-50 80 70v90H0z" fill="#6a8fd8"/><path d="M0 220l90-60 70 40 80-70 160 110v50H0z" fill="#3c5fb0"/><rect y="215" width="400" height="85" fill="#3b74f2"/><path d="M60 240h90M200 255h120M110 275h70" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>'],
 desert:['#f0b13f','#fbeccb','<circle cx="110" cy="100" r="36" fill="#fff" opacity=".8"/><path d="M0 220C80 170 160 190 230 215S350 200 400 180v120H0z" fill="#d98b2b"/><path d="M0 255C100 220 200 250 290 240S370 235 400 225v75H0z" fill="#b86e1b"/><g fill="#5b3510"><circle cx="250" cy="206" r="3"/><circle cx="264" cy="208" r="3"/><circle cx="278" cy="210" r="3"/></g>']};
+Object.assign(T.en,{net:"Can't reach the server. It may be waking up, please try again in a minute."});
 const art=k=>{const [a,b,body]=ART[k]||ART.samarkand;return `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${k}"><defs><linearGradient id="g${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="400" height="300" fill="url(#g${k})"/>${body}</svg>`};
 const kind=n=>{n=String(n||'');const ks=Object.keys(ART);
   if(/samar|самар/i.test(n))return'samarkand';if(/bukh|buxo|бухар/i.test(n))return'bukhara';if(/khiva|xiva|xorazm|хив/i.test(n))return'khiva';
